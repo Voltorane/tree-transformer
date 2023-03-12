@@ -268,26 +268,26 @@ public class Tree {
         HashSet<Integer> childrenIndexes = new HashSet<>();
         HashSet<Integer> rootCandidates = new HashSet<>();
         for (String edge : edges) {
-            // splits "[1, 2]" into ["1", "2"]
+            // splits "1, 2" into "1", "2"
             String[] elements = edge.replaceAll(" ", "").split(",");
             if (elements.length != 2) {
-                throw new IllegalArgumentException("Incorrect tree structure provided! Edge " + edge + " is invalid!");
+                throw new IllegalArgumentException("Incorrect tree structure provided! Edge [" + edge + "] is invalid!");
             }
             int parent, child;
             try {
                 parent = Integer.parseInt(elements[0]);
             } catch (NumberFormatException e) {
-                throw new NumberFormatException("Invalid parent index provided for edge " + edge);
+                throw new NumberFormatException("Invalid parent index provided for edge [" + edge + "]");
             }
             try {
                 child = Integer.parseInt(elements[1]);
             } catch (NumberFormatException e) {
-                throw new NumberFormatException("Invalid child index provided for edge " + edge);
+                throw new NumberFormatException("Invalid child index provided for edge [" + edge + "]");
             }
 
             // check for cycles
             if (treeDefinition.containsKey(child) && treeDefinition.get(child).contains(parent)) {
-                throw new IllegalArgumentException("Incorrect tree structure provided! Edge " + edge + " introduces a cycle!");
+                throw new IllegalArgumentException("Incorrect tree structure provided! Edge [" + edge + "] introduces a cycle!");
             }
             if (!treeDefinition.containsKey(parent)) {
                 treeDefinition.put(parent, new HashSet<>());
@@ -471,7 +471,6 @@ public class Tree {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Tree tree = (Tree) o;
         // root equality check

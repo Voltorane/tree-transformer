@@ -14,13 +14,27 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class TreeTransformer {
-    public static final String exitCommand = "exit";
-    public static final String helpMessage = """
+    private static final String exitCommand = "exit";
+    private static final String instructionHelpMessage =
+                    """
                     Tree Transformer supports the following commands:
                     ADD(<int: parent_index>, <int: child_index>), REMOVE(<int: leaf index>), SAVE <filename>.tt, LOAD <filename>.tt, EXIT
                     Please enter your command:""";
-    public static final String interactiveGreet = "Welcome to the interactive mode of Tree Transformer!";
-    public static HashMap<String, String> supportedCommandsMap;
+    private static final String helpMessage =
+            """
+            Usage:
+            ./TreeTransformer.jar (<file1> <file2>)? (-h|--help)?
+            Provide file1 and file2 to calculate list of transformations needed to be performed on a tree defined in file1
+            in order for it to become equal to tree defined in file2.
+            Trees in files should be defined as a list of edges with parent node on left and child - on right side:
+            [parent, child][parent, child][parent, child]
+            E.g.: [1,2][1,3][2,4]
+            In case file1 and file2 are not provided, an interactive mode will be run, in which you can make create
+            tree in the runtime. All necessary commands for interactive mode will be displayed upon running it.
+            -h or --help to print out usage.
+            """;
+    private static final String interactiveGreet = "Welcome to the interactive mode of Tree Transformer!";
+    private static HashMap<String, String> supportedCommandsMap; // dynamically filled in initializeSupportedCommands
 
     /**
      * Returns a sequence of remove instructions for the subtree including removal of the root
@@ -315,10 +329,12 @@ public class TreeTransformer {
      * @param inputStream stream to get transformation instructions from
      * @param outputStream stream to print successful output information to
      * @param errorStream stream to print error information
+     * @param tree tree on which the transformations will be performed
+     * @return Tree that is generated after transformations in interactive mode
      * */
     public static Tree handleInteractiveMode(InputStream inputStream, PrintStream outputStream, PrintStream errorStream, Tree tree) {
         outputStream.println(interactiveGreet);
-        outputStream.println(helpMessage);
+        outputStream.println(instructionHelpMessage);
         initializeSupportedCommands();  //initialize supported commands
         Scanner scanner = new Scanner(inputStream);
         String command = scanner.nextLine();
@@ -340,14 +356,16 @@ public class TreeTransformer {
                     errorStream.println("Command execution failed! " + e.getMessage());
                 }
             }
-            outputStream.println(helpMessage);
+            outputStream.println(instructionHelpMessage);
             command = scanner.nextLine();
         }
         return tree;
     }
 
     public static void main(String[] args) {
-        if (args.length == 2) {
+        if (Arrays.stream(args).anyMatch((a) -> a.equals("-h") || a.equals("--help"))) {
+            System.out.println(helpMessage);
+        } else if (args.length == 2) {
             try {
                 System.out.println(getTransformationsFromFiles(args[0], args[1]));
             } catch (Exception e) {
@@ -355,7 +373,8 @@ public class TreeTransformer {
             }
         } else if (args.length == 0) {
             handleInteractiveMode(System.in, System.out, System.err, new Tree());
+        } else {
+            System.out.println(helpMessage);
         }
-        System.out.println("Thanks for using Tree Transformer! Hope to see you soon! :)");
     }
 }
