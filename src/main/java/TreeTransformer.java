@@ -288,7 +288,7 @@ public class TreeTransformer {
      * @throws IOException if file operations failed
      * */
     private static void handleSave(String command, Tree tree) throws IOException {
-        String path = command.replace("save", "");
+        String path = command.replace("save", "").replace(" ", "");
         path = Path.of(path).toString();
         try {
             tree.serializeTree(path);
@@ -348,8 +348,14 @@ public class TreeTransformer {
                     switch (commandName) {
                         case "add" -> handleAdd(command, tree);
                         case "remove" -> handleRemove(command, tree);
-                        case "save" -> handleSave(command, tree);
-                        case "load" -> tree = handleLoad(command);
+                        case "save" -> {
+                            handleSave(command, tree);
+                            outputStream.println("Tree successfully saved!");
+                        }
+                        case "load" -> {
+                            tree = handleLoad(command);
+                            outputStream.println("Tree successfully loaded!");
+                        }
                     }
                     outputStream.println(tree);
                 } catch (Exception e) {
